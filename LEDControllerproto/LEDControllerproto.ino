@@ -41,8 +41,8 @@ void loop() {
 void periphConnectedHandler(BLEDevice central) {
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level) 
   pixels.setPixelColor(0, pixels.Color(100,100,100));
-  pixels.setPixelColor(1, pixels.Color(0,0,55));
-  pixels.setPixelColor(2, pixels.Color(254,254,254));
+  pixels.setPixelColor(1, pixels.Color(100,100,100));
+  pixels.setPixelColor(2, pixels.Color(100,100,100));
   pixels.show(); 
 }
 
@@ -52,15 +52,15 @@ void noConnectionHandler(BLEDevice central) {
   pixels.show();
 }
 
-void colorCharacteristicWritten(BLEDevice central, BLECharacteristic characteristic) {
+void colorCharacteristicWritten(BLEDevice central, BLECharacteristic characteristic) {    
     
-    pixels.setPixelColor(1, pixels.Color(100,0,100));
-    pixels.setPixelColor(2, pixels.Color(100,0,100));
-    byte charRead[3];
-    characteristic.readValue(charRead, 3);
+    byte charRead[4];
+    characteristic.readValue(charRead, 4);
     Serial.println(charRead[0]);
     Serial.println(charRead[1]);
     Serial.println(charRead[2]);
-    pixels.setPixelColor(0, pixels.Color(charRead[0],charRead[1],charRead[2]));
+    pixels.setPixelColor(charRead[3], pixels.Color(charRead[0],charRead[1],charRead[2]));
+    //pixels.setPixelColor(1, pixels.Color(charRead[0],charRead[1],charRead[2]));
+   // pixels.setPixelColor(2, pixels.Color(charRead[0],charRead[1],charRead[2]));
     pixels.show();
 }
