@@ -1,21 +1,34 @@
 #include <ArduinoBLE.h>
 #include <Adafruit_NeoPixel.h>
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(3, 2 , NEO_GRB + NEO_KHZ800);
+#define NUMPIXELS      64
+
+Adafruit_NeoPixel pixels[] = {
+  Adafruit_NeoPixel(NUMPIXELS, 2, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, 3, NEO_GRB + NEO_KHZ800), 
+  Adafruit_NeoPixel(NUMPIXELS, 5, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, 6, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, 9, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, 10, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, 11, NEO_GRB + NEO_KHZ800),
+  Adafruit_NeoPixel(NUMPIXELS, 12, NEO_GRB + NEO_KHZ800),};
+  
 BLEService colorService("7f453f59-6477-40d8-8054-f5526953986a");
 
 void setup() {
-  pixels.begin();
-  pixels.setBrightness(50);
+  
+  for (int i = 0; i < 8; i++) {
+    pixels[i].begin(); 
+    pixels[i].setBrightness(50);
+    pixels[i].clear();
+    pixels[i].show(); 
+  }
+  
   if (!BLE.begin()) {
     Serial.println("Failed to start BLE module");
     while (1);
   }
-  pinMode(LED_BUILTIN, OUTPUT);
-  delay(5000);
-  digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off by making the voltage LOW
-  delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    
   BLE.setEventHandler(BLEConnected, periphConnectedHandler);
   BLE.setEventHandler(BLEDisconnected, noConnectionHandler);
   BLE.setLocalName("LED");
@@ -38,29 +51,43 @@ void loop() {
 
 }
 
-void periphConnectedHandler(BLEDevice central) {
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level) 
-  pixels.setPixelColor(0, pixels.Color(100,100,100));
-  pixels.setPixelColor(1, pixels.Color(100,100,100));
-  pixels.setPixelColor(2, pixels.Color(100,100,100));
-  pixels.show(); 
+void periphConnectedHandler(BLEDevice central) {  
+  for (int i = 0; i < NUMPIXELS ; i++) {    
+    pixels[0].setPixelColor(i, pixels[0].Color(100,100,100));
+    pixels[1].setPixelColor(i, pixels[1].Color(100,100,100));
+    pixels[2].setPixelColor(i, pixels[2].Color(100,100,100));
+    pixels[3].setPixelColor(i, pixels[3].Color(100,100,100));
+    pixels[4].setPixelColor(i, pixels[4].Color(100,100,100));    
+  }
+    pixels[0].show();
+    pixels[1].show();
+    pixels[2].show();
+    pixels[3].show();
+    pixels[4].show();
 }
 
-void noConnectionHandler(BLEDevice central) {
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  pixels.clear();
-  pixels.show();
+void noConnectionHandler(BLEDevice central) {  
+  for (int i = 0; i < 8; i++) {    
+    pixels[i].clear();    
+  } 
+    pixels[0].show();
+    pixels[1].show();
+    pixels[2].show();
+    pixels[3].show();
+    pixels[4].show();
 }
 
 void colorCharacteristicWritten(BLEDevice central, BLECharacteristic characteristic) {    
     
     byte charRead[4];
     characteristic.readValue(charRead, 4);
-    Serial.println(charRead[0]);
+    /*Serial.println(charRead[0]);
     Serial.println(charRead[1]);
-    Serial.println(charRead[2]);
-    pixels.setPixelColor(charRead[3], pixels.Color(charRead[0],charRead[1],charRead[2]));
+    Serial.println(charRead[2]);*/
+    for (int i = 0; i < NUMPIXELS; i++) {
+      pixels[charRead[3]].setPixelColor(i, pixels[charRead[3]].Color(charRead[0],charRead[1],charRead[2]));
+    }      
     //pixels.setPixelColor(1, pixels.Color(charRead[0],charRead[1],charRead[2]));
    // pixels.setPixelColor(2, pixels.Color(charRead[0],charRead[1],charRead[2]));
-    pixels.show();
+    pixels[charRead[3]].show();
 }
